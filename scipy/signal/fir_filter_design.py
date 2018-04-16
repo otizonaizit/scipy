@@ -639,8 +639,7 @@ def remez(numtaps, bands, desired, weight=None, Hz=None, type='bandpass',
     >>> cutoff = 8000.0    # Desired cutoff frequency, Hz
     >>> trans_width = 250  # Width of transition from pass band to stop band, Hz
     >>> numtaps = 125      # Size of the FIR filter.
-    >>> taps = signal.remez(numtaps, [0, cutoff, cutoff + trans_width, 0.5*fs],
-                    [1, 0], Hz=fs)
+    >>> taps = signal.remez(numtaps, [0, cutoff, cutoff + trans_width, 0.5*fs], [1, 0], Hz=fs)
     >>> w, h = signal.freqz(taps, [1], worN=2000)
     >>> plot_response(fs, w, h, "Low-pass Filter")
     >>> # High-pass filter design parameters
@@ -648,8 +647,7 @@ def remez(numtaps, bands, desired, weight=None, Hz=None, type='bandpass',
     >>> cutoff = 2000.0    # Desired cutoff frequency, Hz
     >>> trans_width = 250  # Width of transition from pass band to stop band, Hz
     >>> numtaps = 125      # Size of the FIR filter.
-    >>> taps = signal.remez(numtaps, [0, cutoff - trans_width, cutoff, 0.5*fs],
-                    [0, 1], Hz=fs)
+    >>> taps = signal.remez(numtaps, [0, cutoff - trans_width, cutoff, 0.5*fs], [0, 1], Hz=fs)
     >>> w, h = signal.freqz(taps, [1], worN=2000)
     >>> plot_response(fs, w, h, "High-pass Filter")
     >>> # Band-pass filter design parameters
@@ -832,19 +830,19 @@ def firls(numtaps, bands, desired, weight=None, nyq=None, fs=None):
     # Set up the linear matrix equation to be solved, Qa = b
 
     # We can express Q(k,n) = 0.5 Q1(k,n) + 0.5 Q2(k,n)
-    # where Q1(k,n)=q(k¿n) and Q2(k,n)=q(k+n), i.e. a Toeplitz plus Hankel.
+    # where Q1(k,n)=q(kï¿½n) and Q2(k,n)=q(k+n), i.e. a Toeplitz plus Hankel.
 
     # We omit the factor of 0.5 above, instead adding it during coefficient
     # calculation.
 
-    # We also omit the 1/¿ from both Q and b equations, as they cancel
+    # We also omit the 1/ï¿½ from both Q and b equations, as they cancel
     # during solving.
 
     # We have that:
-    #     q(n) = 1/¿ ¿W(¿)cos(n¿)d¿ (over 0->¿)
-    # Using our nomalization ¿=¿f and with a constant weight W over each
+    #     q(n) = 1/ï¿½ ï¿½W(ï¿½)cos(nï¿½)dï¿½ (over 0->ï¿½)
+    # Using our nomalization ï¿½=ï¿½f and with a constant weight W over each
     # interval f1->f2 we get:
-    #     q(n) = W¿cos(¿nf)df (0->1) = Wf sin(¿nf)/¿nf
+    #     q(n) = Wï¿½cos(ï¿½nf)df (0->1) = Wf sin(ï¿½nf)/ï¿½nf
     # integrated over each f1->f2 pair (i.e., value at f2 - value at f1).
     n = np.arange(numtaps)[:, np.newaxis, np.newaxis]
     q = np.dot(np.diff(np.sinc(bands * n) * bands, axis=2)[:, :, 0], weight)
@@ -855,18 +853,18 @@ def firls(numtaps, bands, desired, weight=None, nyq=None, fs=None):
     Q = Q1 + Q2
 
     # Now for b(n) we have that:
-    #     b(n) = 1/¿ ¿ W(¿)D(¿)cos(n¿)d¿ (over 0->¿)
-    # Using our normalization ¿=¿f and with a constant weight W over each
-    # interval and a linear term for D(¿) we get (over each f1->f2 interval):
-    #     b(n) = W ¿ (mf+c)cos(¿nf)df
-    #          = f(mf+c)sin(¿nf)/¿nf + mf**2 cos(n¿f)/(¿nf)**2
+    #     b(n) = 1/ï¿½ ï¿½ W(ï¿½)D(ï¿½)cos(nï¿½)dï¿½ (over 0->ï¿½)
+    # Using our normalization ï¿½=ï¿½f and with a constant weight W over each
+    # interval and a linear term for D(ï¿½) we get (over each f1->f2 interval):
+    #     b(n) = W ï¿½ (mf+c)cos(ï¿½nf)df
+    #          = f(mf+c)sin(ï¿½nf)/ï¿½nf + mf**2 cos(nï¿½f)/(ï¿½nf)**2
     # integrated over each f1->f2 pair (i.e., value at f2 - value at f1).
     n = n[:M + 1]  # only need this many coefficients here
     # Choose m and c such that we are at the start and end weights
     m = (np.diff(desired, axis=1) / np.diff(bands, axis=1))
     c = desired[:, [0]] - bands[:, [0]] * m
     b = bands * (m*bands + c) * np.sinc(bands * n)
-    # Use L'Hospital's rule here for cos(n¿f)/(¿nf)**2 @ n=0
+    # Use L'Hospital's rule here for cos(nï¿½f)/(ï¿½nf)**2 @ n=0
     b[0] -= m * bands * bands / 2.
     b[1:] += m * np.cos(n[1:] * np.pi * bands) / (np.pi * n[1:]) ** 2
     b = np.dot(np.diff(b, axis=2)[:, :, 0], weight)
