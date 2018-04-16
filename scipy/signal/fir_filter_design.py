@@ -724,6 +724,7 @@ def remez(numtaps, bands, desired, weight=None, Hz=None, type='bandpass',
     >>> plt.xlabel('Frequency (Hz)')
     >>> plt.ylabel('Gain')
     >>> plt.show()
+    >>> #sdjbfsudnbfoisbndofibsdofb<soidbfosidbfsdybfluisd   TEST
 
     """
     if Hz is None and fs is None:
